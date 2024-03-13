@@ -1,0 +1,44 @@
+name: golang-docker-template
+
+services:
+  golang:
+    container_name: gdt-golang
+    build:
+      context: .
+      dockerfile: ./.docker/golang/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    networks:
+      - internal
+  postgres:
+    container_name: gdt-postgres
+    build:
+      context: .
+      dockerfile: ./.docker/postgres/Dockerfile
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB}"
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      PGDATA: "/data"
+    volumes:
+      - postgres_data:/data
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    networks:
+      - internal
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
+      interval: 1s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  internal:
+    driver: bridge
