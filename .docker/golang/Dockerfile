@@ -1,5 +1,5 @@
 # Start from golang base image
-FROM golang:alpine as builder
+FROM golang:1.22-alpine3.19 as builder
 
 MAINTAINER Pestrich <bnm9229bnm@yandex.ru>
 
